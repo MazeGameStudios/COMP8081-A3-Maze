@@ -14,6 +14,7 @@
 - (void)setup:(GLKView *)view;
 - (void)setupShaders;
 - (void)update;
+- (NSString*)getMinimap;
 - (void)rotateCamera:(float)xDelta secondDelta:(float)zDelta;
 - (void)translateCameraForward:(float)xDelta secondDelta:(float)zDelta;
 - (void)draw:(CGRect)drawRect;

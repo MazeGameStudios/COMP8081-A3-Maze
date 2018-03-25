@@ -22,6 +22,7 @@ using namespace std;
     GLuint uvBuffer;
     GLuint elementBuffer;
     GLuint textureID;
+    GLuint npcTextureID;
     
     GLKMatrix4 mvp;
     
@@ -54,7 +55,6 @@ using namespace std;
     vector< GLKVector3 > indexed_normals;
     
     float cubeScale;
-    int numOfFaces;
     
     vector<unsigned short> indices2;
     GLuint textureIdWall;
@@ -62,11 +62,34 @@ using namespace std;
     GLuint normalbuffer2;
     GLuint uvBuffer2;
     GLuint elementBuffer2;
+    
 }
 
 @end
 
 @implementation Renderer
+
+typedef struct{
+    float x;
+    float z;
+}MyVec2;
+
+static bool mazeArray[10][10] = {
+    {true, true, true, true, false, true, true, true, true, true},
+    {true, false, false, true, false, false, false, true, false, true},
+    {true, true, false, false, false, true, true, true, false, true},
+    {true, true, true, true, false, false, false, false, false, true},
+    {true, false, false, false, false, true, true, false, true, true},
+    {true, false, true, true, true, true, true, false, true, true},
+    {true, false, true, true, true, false, true, false, true, true},
+    {true, false, true, true, true, false, true, false, true, true},
+    {true, false, false, false, false, false, true, false, true, true},
+    {true, true, true, true, true, true, true, false, true, true},
+};
+
+const int mazeLength = 10;
+
+MyVec2 coordinates[100];
 
 - (void)dealloc {
     glDeleteProgram(PROGRAM_HANDLE);
@@ -86,12 +109,12 @@ using namespace std;
     [self setupShaders];
     
     //initial camera info
-    cameraX = 0; cameraY = 0; cameraZ = 0;
+    cameraX = 18; cameraY = 2; cameraZ = 8; cameraHorizontalRot = 174.445;
     position.x = 0; position.y = 0; position.z = 0; cubeScale = 2;
-    initialFoV = 75.0; moveSpeed = .5; rotationSensitivity = 0.0005;
+    initialFoV = 75.0; moveSpeed = .3; rotationSensitivity = 0.0005;
     
     //set clear color
-    glClearColor(0.0f, 0.0f, 0.35f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //0.0f, 0.0f, 0.35f, 0.0f
     glGenVertexArraysOES(1, &VertexArrayID);
     glBindVertexArrayOES(VertexArrayID);
     // Enable depth test
@@ -101,56 +124,134 @@ using namespace std;
     // Cull triangles which normal is not towards the camera
     //glEnable(GL_CULL_FACE);
     
-    textureIdWall = [self setupTexture:@"cube.png"];
-    textureID = [self setupTexture:@"goldplate.jpg"];
+    textureIdWall = [self setupTexture:@"crate.jpg"];
+    textureID = [self setupTexture:@"goldplate.jpg"]; //floor
+    npcTextureID = [self setupTexture:@"rabbit.jpg"];
     
-    indices = [self setupVBO:@"cube" vertexBuffer:vertexbuffer uvBuffer:uvBuffer normalBuffer:normalbuffer elementBuffer:elementBuffer];  //walls
+    indices = [self setupVBO:@"cube_mit" vertexBuffer:vertexbuffer uvBuffer:uvBuffer normalBuffer:normalbuffer elementBuffer:elementBuffer];  //walls
     
-    indices2 = [self setupVBO:@"cube_mit" vertexBuffer:vertexbuffer2 uvBuffer:uvBuffer2 normalBuffer:normalbuffer2 elementBuffer:elementBuffer2]; //npc
+    indices2 = [self setupVBO:@"rabbit" vertexBuffer:vertexbuffer2 uvBuffer:uvBuffer2 normalBuffer:normalbuffer2 elementBuffer:elementBuffer2]; //npc
+    
+    int i = 0;
+    
+    for (size_t x = 0; x < sizeof(*mazeArray) / sizeof(**mazeArray); ++x){
+        for (size_t z = 0; z < sizeof(mazeArray)  / sizeof(*mazeArray);  ++z) {
+            if (mazeArray[x][z]) {  //wall
+                coordinates[i].x  = x;
+                coordinates[i++].z = z;
+            }
+        }
+        
+    }
     
 }
 
-- (void)update {
-    modelYRot += 0.05f;
-    
-    //Projection matrix
-    float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    ProjectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(initialFoV), aspect, 0.1, 100.0);
 
-    ViewMatrix = GLKMatrix4RotateY(GLKMatrix4Identity, cameraHorizontalRot);
-    ViewMatrix = GLKMatrix4RotateX(ViewMatrix, cameraVerticalRot);
-    ViewMatrix = GLKMatrix4Translate(ViewMatrix, cameraX, 0, cameraZ);
+- (void)update {
+    /*
     
     //Model = GLKMatrix4Translate(GLKMatrix4Identity, position.x, position.y, position.z);
     //Model = GLKMatrix4RotateX(Model, modelYRot);
     //Model = GLKMatrix4Scale(Model, cubeScale, cubeScale, cubeScale);
+    */
+    modelYRot += 0.05f;
+    //Projection matrix
+    float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
+    ProjectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(initialFoV), aspect, 0.1, 100.0);
+    
+    ViewMatrix = GLKMatrix4MakeYRotation(cameraHorizontalRot);
+    //ViewMatrix = GLKMatrix4RotateX(ViewMatrix, cameraVerticalRot);
+    ViewMatrix = GLKMatrix4Translate(ViewMatrix, -cameraX, -cameraY, -cameraZ);
+    
+   //npcRotY += 0.05;
+   [self moveNPC];
 }
 
-float wallX = 0;
-float wallZ = 4;
+//float npcX = 8.5, npcZ = 7.2, npcRotY = 150;
+float npcX = 10, npcZ = 9, npcRotY = 125, npcSpeed = 3;
+- (void)moveNPC{
+    
+    if (npcRotY > 2 * M_PI) {
+        npcRotY -= 2 * M_PI;
+    }
+    if (npcRotY < 0.0) {
+        npcRotY += 2 * M_PI;
+    }
+    
+     for(const MyVec2 &vec2 : coordinates){
+         if(abs(npcX - vec2.x) < .8 && abs(npcZ - vec2.z ) < .8){
+         
+         NSLog(@"Currently colliding!");
+         
+         if(abs(npcX - vec2.x) > abs(npcZ - vec2.z)){
+         if(npcX > vec2.x){ //hitting the wall from a greater x value
+             npcX = vec2.x + 1;
+         }
+         
+         if(npcX < vec2.x){ //hitting wall from smaller x value
+             npcX = vec2.x - 1;
+         }
+         }else{
+         
+         if(npcZ > vec2.z){
+             npcZ = vec2.z + 1;
+         }
+         
+         if(npcZ < vec2.z){
+             npcZ = vec2.z - 1;
+         }
+         }
+         
+         return;
+         }
+     }
+    
+    npcZ -= cos(npcRotY) * npcSpeed * 0.01;
+    npcX += sin(npcRotY) * npcSpeed * 0.01;
+}
 
 - (void)draw:(CGRect)drawRect; {
     
     [_shader prepareToDraw];
     glClear ( GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT );
+
+    
+    Model = GLKMatrix4Translate(GLKMatrix4Identity, npcX, .4, npcZ);
+    Model = GLKMatrix4Scale(Model, .5, .5, .5);
+    Model = GLKMatrix4RotateY(Model, npcRotY);
+    [self drawVBO2:npcTextureID];
     
     
-    //Model = GLKMatrix4RotateY(Model, modelYRot);
-    Model = GLKMatrix4Translate(GLKMatrix4Identity, wallX, 0, wallZ);
-    [self drawVBO2:textureID];
-    
-    
-    //Model = GLKMatrix4Translate(GLKMatrix4Identity, 4, 0, 4);
-    // Model = GLKMatrix4Scale(Model, 1, 1, 1);
-    //Model = GLKMatrix4MakeTranslation(4, 0, 20);
-    //[self drawVBO1:textureIdWall];
+    for (size_t x = 0; x < sizeof(*mazeArray) / sizeof(**mazeArray); ++x){
+        for (size_t z = 0; z < sizeof(mazeArray)  / sizeof(*mazeArray);  ++z) {
+            if (mazeArray[x][z]) {  //wall
+                
+                //printf("drawing wall %lu %lu",x,z);
+                
+                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 0, z);
+                Model = GLKMatrix4Scale(Model, 1, 1, 1);
+                [self drawVBO1:textureID];
+                
+                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 1.5, z);
+                Model = GLKMatrix4Scale(Model, 1, 2, 1);
+                [self drawVBO1:textureIdWall];
+                
+            }else{ //just floor
+                
+                Model = GLKMatrix4Scale(Model, 1, 1, 1);
+                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 0, z);
+                [self drawVBO1:textureID];
+            }
+        }
+        
+    }
     
     
 }
 
 - (void)rotateCamera:(float)xDelta secondDelta:(float)yDelta {
-    cameraHorizontalRot += (xDelta * rotationSensitivity);
-    //cameraVerticalRot += (yDelta * rotationSensitivity);
+    cameraVerticalRot += (yDelta * rotationSensitivity);
+    cameraHorizontalRot -= xDelta * rotationSensitivity;
 }
 
 
@@ -158,20 +259,47 @@ float r = 1; //length of every edge
 //Point p1 is the center of one square, and p2 is of the other
 //if (Math.abs(p1.x - p2.x) < r && Math.abs(p1.y - p2.y) < r){ collided!}
 - (void)translateCameraForward:(float)xDelta secondDelta:(float)zDelta{
-    GLKVector3 direction;
-    direction.x = cosf(cameraVerticalRot) * sin(cameraHorizontalRot);
-    direction.y = sinf(cameraVerticalRot);
-    direction.z = cosf(cameraVerticalRot) * cosf(cameraHorizontalRot);
     
-    NSLog(@"%f %f",cameraX, cameraZ);
-    if(abs(cameraX - wallX) < r && abs(-cameraZ - wallZ ) < r){
-        NSLog(@"Currently colldiing!");
-        cameraZ = wallZ - 1;
-        return;
+    if (cameraHorizontalRot > 2 * M_PI) {
+        cameraHorizontalRot -= 2 * M_PI;
+    }
+    if (cameraHorizontalRot < 0.0) {
+        cameraHorizontalRot += 2 * M_PI;
     }
     
-    cameraX += direction.x * 0.25;
-    cameraZ += direction.z * 0.25;
+    //NSLog(@"%f %f",cameraX, cameraZ);
+    
+    /*
+    for(const MyVec2 &vec2 : coordinates){
+        if(abs(cameraX - vec2.x) < .8 && abs(cameraZ - vec2.z ) < .8){
+            
+            NSLog(@"Currently colliding!");
+            
+            if(abs(cameraX - vec2.x) > abs(cameraZ - vec2.z)){
+                if(cameraX > vec2.x){ //hitting the wall from a greater x value
+                    cameraX = vec2.x + 1;
+                }
+                
+                if(cameraX < vec2.x){ //hitting wall from smaller x value
+                    cameraX = vec2.x - 1;
+                }
+            }else{
+                
+                if(cameraZ > vec2.z){
+                    cameraZ = vec2.z + 1;
+                }
+                
+                if(cameraZ < vec2.z){
+                    cameraZ = vec2.z - 1;
+                }
+            }
+ 
+            return;
+        }
+    } */
+    
+    cameraZ -= cos(cameraHorizontalRot) * zDelta * 0.001;
+    cameraX += sin(cameraHorizontalRot) * zDelta * 0.001;
 }
 
 //sets up an vbo with data loaded in from an obj file
@@ -362,7 +490,6 @@ float r = 1; //length of every edge
             fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z );
             temp_normals.push_back(normal);
         }else if ( strcmp( lineHeader, "f" ) == 0 ){
-            numOfFaces++;
             
             std::string vertex1, vertex2, vertex3;
             unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
@@ -469,7 +596,45 @@ void indexVBO_slow(
             out_indices .push_back( (unsigned short)out_vertices.size() - 1 );
         }
     }
-    
+}
+
+- (NSString*)getMinimap {
+    NSMutableString *string = [NSMutableString string];
+    for(int x = 0; x < mazeLength; x++){
+        for(int z = 0; z < mazeLength; z++){
+           
+            if (z == roundf(cameraZ) && x == roundf(cameraX)) {
+                float rotDegrees = GLKMathRadiansToDegrees(cameraHorizontalRot);
+                if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
+                    [string appendString:@"@↓"];
+                } else if (rotDegrees > 22.5 && rotDegrees <= 67.5) {
+                    [string appendString:@"@↘"];
+                } else if (rotDegrees > 67.5 && rotDegrees <= 112.5) {
+                    [string appendString:@"@→"];
+                } else if (rotDegrees > 112.5 && rotDegrees <= 157.5) {
+                    [string appendString:@"@↗"];
+                } else if (rotDegrees > 157.5 && rotDegrees <= 202.5) {
+                    [string appendString:@"@↑"];
+                } else if (rotDegrees > 202.5 && rotDegrees <= 247.5) {
+                    [string appendString:@"@↖"];
+                } else if (rotDegrees > 247.5 && rotDegrees <= 292.5) {
+                    [string appendString:@"@←"];
+                } else if (rotDegrees > 292.5 && rotDegrees <= 337.5) {
+                    [string appendString:@"@↙"];
+                }
+            } else {
+                if(mazeArray[x][z]){
+                    //[string appendString:@"  "];
+                    [string appendString:@"#"];
+                } else {
+                    //[string appendString:@"██"];
+                    [string appendString:@"*"];
+                }
+            }
+        }
+        [string appendString:@"\n"];
+    }
+    return string;
 }
 
 @end

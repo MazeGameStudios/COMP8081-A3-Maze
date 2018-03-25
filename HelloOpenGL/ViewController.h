@@ -11,6 +11,7 @@
 #import "Renderer.h"
 
 @interface ViewController : GLKViewController
+@property (weak, nonatomic) IBOutlet UILabel *mapLabel;
 
 
 @end

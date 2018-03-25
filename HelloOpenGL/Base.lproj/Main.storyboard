@@ -9,6 +9,11 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="Menlo.ttc">
+            <string>Menlo-Regular</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--GLKit View Controller-->
         <scene sceneID="l2D-0t-A9y">
@@ -19,23 +24,35 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wXB-Sz-wSR">
-                                <rect key="frame" x="124" y="20" width="73" height="30"/>
+                                <rect key="frame" x="0.0" y="0.0" width="73" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="toggle pan"/>
                                 <connections>
                                     <action selector="togglePan:" destination="PHX-A1-6AW" eventType="touchUpInside" id="xN1-sA-L9t"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="50" baselineAdjustment="alignBaselines" minimumFontSize="1" translatesAutoresizingMaskIntoConstraints="NO" id="3xP-Vu-d8Z">
+                                <rect key="frame" x="103" y="0.0" width="217" height="191"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="15"/>
+                                <color key="textColor" red="0.019607843140000001" green="1" blue="0.63137254899999995" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
+                                <color key="highlightedColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="shadowColor" white="0.0" alpha="0.49698044479999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <size key="shadowOffset" width="1" height="1"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vMU-dN-IPl"/>
                         <connections>
                             <outlet property="delegate" destination="PHX-A1-6AW" id="nT1-jZ-lvW"/>
                         </connections>
                     </glkView>
+                    <connections>
+                        <outlet property="mapLabel" destination="3xP-Vu-d8Z" id="G9V-4K-v3S"/>
+                    </connections>
                 </glkViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Cyx-bg-k4f" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="108" y="139"/>
+            <point key="canvasLocation" x="106.875" y="138.38028169014083"/>
         </scene>
     </scenes>
 </document>

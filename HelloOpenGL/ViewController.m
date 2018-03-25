@@ -45,6 +45,7 @@
 - (void)update
 {
     [myRenderer update];
+    _mapLabel.text = [myRenderer getMinimap];
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
