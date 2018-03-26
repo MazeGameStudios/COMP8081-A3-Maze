@@ -9,6 +9,7 @@
 #include <fstream>      // std::ifstream
 #include <sstream>      // std::istringstream
 #include <vector>
+#include <iterator>
 using namespace std;
 
 @interface Renderer () {
@@ -21,17 +22,16 @@ using namespace std;
     GLuint normalbuffer;
     GLuint uvBuffer;
     GLuint elementBuffer;
-    GLuint textureID;
-    GLuint npcTextureID;
     
-    GLKMatrix4 mvp;
+    GLuint floorTextureID;
+    GLuint npcTextureID;
+    GLuint textureSkyID;
+    GLuint textureWallID, textureWallLeftID, textureWallRightID, textureWallBothID;
     
     //Camera, movement
     GLKMatrix4 Model, ViewMatrix, ProjectionMatrix;
     
-    GLKVector3 direction;
     GLKVector3 position;
-    GLKVector3 up;
 
     float initialFoV;
     float moveSpeed;
@@ -41,8 +41,6 @@ using namespace std;
     float cameraVerticalRot;
     
     float cameraX, cameraY, cameraZ;
-    
-    float modelYRot; //y rotation for one of the cubes to use, for continuous rotation
     
     //for obj data
     vector< GLKVector3 > vertices;
@@ -57,39 +55,47 @@ using namespace std;
     float cubeScale;
     
     vector<unsigned short> indices2;
-    GLuint textureIdWall;
     GLuint vertexbuffer2;     // buffers for 2nd obj
     GLuint normalbuffer2;
     GLuint uvBuffer2;
     GLuint elementBuffer2;
     
+    
+    GLuint asds;
 }
 
 @end
 
 @implementation Renderer
 
+@synthesize _isMoving;
+@synthesize _isRotating;
+@synthesize _cameraCollisionEnabled;
+@synthesize _spotlightToggle;
+@synthesize _fogToggle;
+@synthesize _fogUseExp;
+@synthesize _isDay;
+
+float collisionOffset = 0.9;
+float edgeLength = 0.8; //length of a squares edge
+
+const int mazeSize = 8;
+const int mazeLength = mazeSize * 2 + 1;
+const int mazeEntrance = (mazeSize % 2)?mazeSize: mazeSize - 1;
+bool mazeArray[mazeLength][mazeLength];
+int totalWalls = 0;
+
+bool both, west, east;
+
+float npcX = 0, npcZ = mazeEntrance, npcRotY = 1.7, npcSpeed = 3;
+int maxMoveFrames = 120, currentFrames = 60;
+
 typedef struct{
     float x;
     float z;
 }MyVec2;
 
-static bool mazeArray[10][10] = {
-    {true, true, true, true, false, true, true, true, true, true},
-    {true, false, false, true, false, false, false, true, false, true},
-    {true, true, false, false, false, true, true, true, false, true},
-    {true, true, true, true, false, false, false, false, false, true},
-    {true, false, false, false, false, true, true, false, true, true},
-    {true, false, true, true, true, true, true, false, true, true},
-    {true, false, true, true, true, false, true, false, true, true},
-    {true, false, true, true, true, false, true, false, true, true},
-    {true, false, false, false, false, false, true, false, true, true},
-    {true, true, true, true, true, true, true, false, true, true},
-};
-
-const int mazeLength = 10;
-
-MyVec2 coordinates[100];
+MyVec2 coordinates[mazeLength*mazeLength];
 
 - (void)dealloc {
     glDeleteProgram(PROGRAM_HANDLE);
@@ -108,13 +114,19 @@ MyVec2 coordinates[100];
     
     [self setupShaders];
     
+    GenerateMaze();
+    
     //initial camera info
-    cameraX = 18; cameraY = 2; cameraZ = 8; cameraHorizontalRot = 174.445;
-    position.x = 0; position.y = 0; position.z = 0; cubeScale = 2;
-    initialFoV = 75.0; moveSpeed = .3; rotationSensitivity = 0.0005;
+    cameraX = -4; cameraY = 1.5; cameraZ = mazeEntrance; cameraHorizontalRot = 1.6111011;
+    position.x = 0; position.y = 0; position.z = 0; cubeScale = 1;
+    initialFoV = 90.0; moveSpeed = .3; rotationSensitivity = 0.0005;
+    
+    _cameraCollisionEnabled = true;
+    _isMoving = false;
+    _isDay = true;
     
     //set clear color
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //0.0f, 0.0f, 0.35f, 0.0f
+    glClearColor(135.0/255.0, 206.0/255.0, 250.0/255.0, 1.0f);
     glGenVertexArraysOES(1, &VertexArrayID);
     glBindVertexArrayOES(VertexArrayID);
     // Enable depth test
@@ -122,140 +134,216 @@ MyVec2 coordinates[100];
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
     // Cull triangles which normal is not towards the camera
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     
-    textureIdWall = [self setupTexture:@"crate.jpg"];
-    textureID = [self setupTexture:@"goldplate.jpg"]; //floor
-    npcTextureID = [self setupTexture:@"rabbit.jpg"];
     
-    indices = [self setupVBO:@"cube_mit" vertexBuffer:vertexbuffer uvBuffer:uvBuffer normalBuffer:normalbuffer elementBuffer:elementBuffer];  //walls
-    
-    indices2 = [self setupVBO:@"rabbit" vertexBuffer:vertexbuffer2 uvBuffer:uvBuffer2 normalBuffer:normalbuffer2 elementBuffer:elementBuffer2]; //npc
-    
+    //Setup collision for all walls of the maze
     int i = 0;
-    
     for (size_t x = 0; x < sizeof(*mazeArray) / sizeof(**mazeArray); ++x){
         for (size_t z = 0; z < sizeof(mazeArray)  / sizeof(*mazeArray);  ++z) {
-            if (mazeArray[x][z]) {  //wall
+            if (!mazeArray[x][z]) {  //true = path, false = wall
                 coordinates[i].x  = x;
                 coordinates[i++].z = z;
             }
         }
-        
     }
+    
+    [_shader prepareToDraw];
+
+    glUniform1i(glGetUniformLocation(PROGRAM_HANDLE, "texSampler"), 0);
+    glUniform1f(glGetUniformLocation(PROGRAM_HANDLE, "fogEnd"), 8.0);
+    glUniform1f(glGetUniformLocation(PROGRAM_HANDLE, "fogDensity"), 0.25);
+    glUniform1f(glGetUniformLocation(PROGRAM_HANDLE, "spotlightCutoff"), cosf(M_PI/12)); // cos(30deg / 2)
+    glUniform4f(glGetUniformLocation(PROGRAM_HANDLE, "spotlightColor"), 0.5, 0.5, 0.5, 1.0);
+    
+    textureWallID = [self setupTexture:@"greywall.jpg"];
+    textureWallLeftID = [self setupTexture:@"goldwall.jpg"];
+    textureWallRightID = [self setupTexture:@"bluewall.jpg"];
+    textureWallBothID = [self setupTexture:@"mosswall.jpeg"];
+    
+    floorTextureID = [self setupTexture:@"maze_floor.jpg"];
+    npcTextureID = [self setupTexture:@"diamond.jpg"];
+    textureSkyID = [self setupTexture:@"sky.jpg"];
+    
+    indices = [self setupVBO:@"cube_mit" vertexBuffer:vertexbuffer uvBuffer:uvBuffer normalBuffer:normalbuffer elementBuffer:elementBuffer];  //Walls and floor rendered as cubes with different textures and scale
+    
+    indices2 = [self setupVBO:@"trooper" vertexBuffer:vertexbuffer2 uvBuffer:uvBuffer2 normalBuffer:normalbuffer2 elementBuffer:elementBuffer2]; //Our npc
     
 }
 
 
 - (void)update {
-    /*
+
+    if(_isRotating) npcRotY += 0.05f;
     
-    //Model = GLKMatrix4Translate(GLKMatrix4Identity, position.x, position.y, position.z);
-    //Model = GLKMatrix4RotateX(Model, modelYRot);
-    //Model = GLKMatrix4Scale(Model, cubeScale, cubeScale, cubeScale);
-    */
-    modelYRot += 0.05f;
     //Projection matrix
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
-    ProjectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(initialFoV), aspect, 0.1, 100.0);
+    ProjectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(initialFoV), aspect, 0.1, 1000.0);
     
     ViewMatrix = GLKMatrix4MakeYRotation(cameraHorizontalRot);
     //ViewMatrix = GLKMatrix4RotateX(ViewMatrix, cameraVerticalRot);
     ViewMatrix = GLKMatrix4Translate(ViewMatrix, -cameraX, -cameraY, -cameraZ);
-    
-   //npcRotY += 0.05;
-   [self moveNPC];
+    if(_isMoving) [self moveNPC];
 }
 
-//float npcX = 8.5, npcZ = 7.2, npcRotY = 150;
-float npcX = 10, npcZ = 9, npcRotY = 125, npcSpeed = 3;
+-(void)spotlight_fog_uniforms{
+    
+    glUniform1i(glGetUniformLocation(PROGRAM_HANDLE, "spotlight"), _spotlightToggle);
+    glUniform1i(glGetUniformLocation(PROGRAM_HANDLE, "fog"), _fogToggle);
+    glUniform1i(glGetUniformLocation(PROGRAM_HANDLE, "fogUseExp"), _fogUseExp);
+    if (_isDay) {
+        glUniform4f(glGetUniformLocation(PROGRAM_HANDLE, "ambientColor"), 1,1,1, 1.000); //0.784, 0.706, 0.627, 1.000
+        glUniform4f(glGetUniformLocation(PROGRAM_HANDLE, "fogColor"), 0.784, 0.706, 0.627, 1.000);
+        glClearColor(135.0/255.0, 206.0/255.0, 250.0/255.0, 1.0f);
+    } else {
+        glUniform4f(glGetUniformLocation(PROGRAM_HANDLE, "ambientColor"), 0.250, 0.250, 0.500, 1.000);
+        glUniform4f(glGetUniformLocation(PROGRAM_HANDLE, "fogColor"), 0.125, 0.125, 0.250, 1.000);
+        glClearColor(0.125, 0.125, 0.251, 1.000);
+    }
+    
+}
+
+- (void)draw:(CGRect)drawRect; {
+    [_shader prepareToDraw];
+    [self spotlight_fog_uniforms];
+    glClear ( GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT );
+    
+    Model = GLKMatrix4Translate(GLKMatrix4Identity, 125, 100, mazeEntrance+50);
+    Model = GLKMatrix4Scale(Model, 1, 600, 600);
+    Model = GLKMatrix4RotateY(Model, 20);
+    [self drawVBO_Cube:textureSkyID];
+    
+    
+    Model = GLKMatrix4Translate(GLKMatrix4Identity, npcX, .4, npcZ);
+    Model = GLKMatrix4Scale(Model, .8, .8, .8);
+    Model = GLKMatrix4RotateY(Model, npcRotY);
+    [self drawVBO_Model:npcTextureID];
+    
+    
+    for (int x = 0; x < sizeof(*mazeArray) / sizeof(**mazeArray); ++x){  //x = row, c = column -- +x is north, +z = east
+        for (int z = 0; z < sizeof(mazeArray)  / sizeof(*mazeArray);  ++z) {
+            
+            if (mazeArray[x][z]) {  //true = floor, aka path
+                
+                Model = GLKMatrix4Scale(Model, 1, 1, 1);
+                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 0, z);
+                [self drawVBO_Cube:floorTextureID];
+                
+            }else{  //false = wall
+                
+                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 0, z);
+                Model = GLKMatrix4Scale(Model, 1, 1, 1);    //floor will be a 1x1x1 cube
+                [self drawVBO_Cube:floorTextureID];
+                
+                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 1.5, z);
+                Model = GLKMatrix4Scale(Model, 1, 2, 1);    //scale of maze wall, 1m by 1m, 2m in height
+                
+                //walls on both sides: a wall exists to the east and west of current wall. +z direction is east
+                if(z-1 >= 0 && z+1 <= mazeLength){
+                    both = (!mazeArray[x][z-1] && !mazeArray[x][z+1]);
+                }else{
+                    both = false;
+                }
+                
+                //walls on left side only - wall exists to the -z direction: west of current wall
+                if(z-1 >= 0){
+                    west = (!mazeArray[x][z-1] && mazeArray[x][z+1]); //false - current true - false --> wall to the left, but path on the right
+                }else{
+                    west = false;
+                }
+                
+                //walls on right side only - wall exists to the +z direction: east of current wall
+                if(z+1 <= mazeLength){
+                    east = (mazeArray[x][z-1] && !mazeArray[x][z+1]); //true - current wall - false --> wall to the right, but path on the left
+                }else{
+                    east = false;
+                }
+                
+                if(both){
+                    [self drawVBO_Cube:textureWallBothID]; //wall on both sides (left and right)
+                }
+                else if(west){ //wall on the left only
+                    [self drawVBO_Cube:textureWallLeftID];
+                }
+                else if(east){ //wall on the right only
+                    [self drawVBO_Cube:textureWallRightID];
+                }
+                else{
+                    [self drawVBO_Cube:textureWallID];
+                }
+                
+                
+            }
+        }
+
+    }
+    
+    
+}
+
+- (void)reset {
+    cameraX = -4; cameraY = 1.5; cameraZ = mazeEntrance; cameraHorizontalRot = 1.6111011;
+    npcX = 0; npcZ = mazeEntrance; npcRotY = 1.7; npcSpeed = 3;
+    _isMoving = false;
+}
+
+- (void)rotateCamera:(float)xDelta secondDelta:(float)yDelta {
+    //cameraVerticalRot += (yDelta * rotationSensitivity); rotates camera vertically
+    cameraHorizontalRot -= xDelta * rotationSensitivity;
+}
+
+
 - (void)moveNPC{
     
-    if (npcRotY > 2 * M_PI) {
-        npcRotY -= 2 * M_PI;
-    }
-    if (npcRotY < 0.0) {
-        npcRotY += 2 * M_PI;
+    if(currentFrames++ >= maxMoveFrames){
+        npcRotY = RandomFloat(0, 6.28055);
+        currentFrames = 0;
     }
     
-     for(const MyVec2 &vec2 : coordinates){
-         if(abs(npcX - vec2.x) < .8 && abs(npcZ - vec2.z ) < .8){
-         
-         NSLog(@"Currently colliding!");
-         
-         if(abs(npcX - vec2.x) > abs(npcZ - vec2.z)){
-         if(npcX > vec2.x){ //hitting the wall from a greater x value
-             npcX = vec2.x + 1;
-         }
-         
-         if(npcX < vec2.x){ //hitting wall from smaller x value
-             npcX = vec2.x - 1;
-         }
-         }else{
-         
-         if(npcZ > vec2.z){
-             npcZ = vec2.z + 1;
-         }
-         
-         if(npcZ < vec2.z){
-             npcZ = vec2.z - 1;
-         }
-         }
-         
-         return;
-         }
-     }
+    if (npcRotY > 2 * M_PI) npcRotY -= 2 * M_PI;
+    if (npcRotY < 0.0) npcRotY += 2 * M_PI;
+    
+    //check if npc is trying to leave one of two possible entrances
+    if(npcX < 0){
+        npcX = 0.1;
+        npcRotY = RandomFloat(0, 6.28055);
+        return;
+    }else if(npcX > mazeLength){
+        npcX = mazeLength-0.1;
+        npcRotY = RandomFloat(0, 6.28055);
+        return;
+    }
+    
+    for(const MyVec2 &vec2 : coordinates){
+        
+        if(abs(npcX - vec2.x) < edgeLength && abs(npcZ - vec2.z ) < edgeLength){  //collided with something
+            
+            if(vec2.x == 0 && vec2.z == 0)  break;
+            
+            npcRotY = RandomFloat(0, 6.28055);
+            
+            if(abs(npcX - vec2.x) > abs(npcZ - vec2.z)){
+                
+                if(npcX > vec2.x) //hitting the wall from a greater x value
+                    npcX = vec2.x + collisionOffset;
+                if(npcX < vec2.x) //hitting wall from smaller x value
+                    npcX = vec2.x - collisionOffset;
+                
+            }else{
+                if(npcZ > vec2.z)  npcZ = vec2.z + collisionOffset;
+                
+                if(npcZ < vec2.z)  npcZ = vec2.z - collisionOffset;
+            }
+            
+            return;
+        }
+    }
     
     npcZ -= cos(npcRotY) * npcSpeed * 0.01;
     npcX += sin(npcRotY) * npcSpeed * 0.01;
 }
 
-- (void)draw:(CGRect)drawRect; {
-    
-    [_shader prepareToDraw];
-    glClear ( GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT );
 
-    
-    Model = GLKMatrix4Translate(GLKMatrix4Identity, npcX, .4, npcZ);
-    Model = GLKMatrix4Scale(Model, .5, .5, .5);
-    Model = GLKMatrix4RotateY(Model, npcRotY);
-    [self drawVBO2:npcTextureID];
-    
-    
-    for (size_t x = 0; x < sizeof(*mazeArray) / sizeof(**mazeArray); ++x){
-        for (size_t z = 0; z < sizeof(mazeArray)  / sizeof(*mazeArray);  ++z) {
-            if (mazeArray[x][z]) {  //wall
-                
-                //printf("drawing wall %lu %lu",x,z);
-                
-                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 0, z);
-                Model = GLKMatrix4Scale(Model, 1, 1, 1);
-                [self drawVBO1:textureID];
-                
-                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 1.5, z);
-                Model = GLKMatrix4Scale(Model, 1, 2, 1);
-                [self drawVBO1:textureIdWall];
-                
-            }else{ //just floor
-                
-                Model = GLKMatrix4Scale(Model, 1, 1, 1);
-                Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 0, z);
-                [self drawVBO1:textureID];
-            }
-        }
-        
-    }
-    
-    
-}
-
-- (void)rotateCamera:(float)xDelta secondDelta:(float)yDelta {
-    cameraVerticalRot += (yDelta * rotationSensitivity);
-    cameraHorizontalRot -= xDelta * rotationSensitivity;
-}
-
-
-float r = 1; //length of every edge
 //Point p1 is the center of one square, and p2 is of the other
 //if (Math.abs(p1.x - p2.x) < r && Math.abs(p1.y - p2.y) < r){ collided!}
 - (void)translateCameraForward:(float)xDelta secondDelta:(float)zDelta{
@@ -269,37 +357,46 @@ float r = 1; //length of every edge
     
     //NSLog(@"%f %f",cameraX, cameraZ);
     
-    /*
-    for(const MyVec2 &vec2 : coordinates){
-        if(abs(cameraX - vec2.x) < .8 && abs(cameraZ - vec2.z ) < .8){
+    if(_cameraCollisionEnabled){
+        for(const MyVec2 &vec2 : coordinates){
             
-            NSLog(@"Currently colliding!");
-            
-            if(abs(cameraX - vec2.x) > abs(cameraZ - vec2.z)){
-                if(cameraX > vec2.x){ //hitting the wall from a greater x value
-                    cameraX = vec2.x + 1;
+            if(abs(cameraX - vec2.x) < edgeLength && abs(cameraZ - vec2.z ) < edgeLength){
+                
+                if(vec2.x == 0 && vec2.z == 0)  break;
+                //NSLog(@"Currently colliding!");
+                
+                if(abs(cameraX - vec2.x) > abs(cameraZ - vec2.z)){
+                    if(cameraX > vec2.x)//hitting the wall from a greater x value
+                        cameraX = vec2.x + .9;
+                    if(cameraX < vec2.x)//hitting wall from smaller x value
+                        cameraX = vec2.x - .9;
+                }else{
+                    if(cameraZ > vec2.z)
+                        cameraZ = vec2.z + .9;
+                    if(cameraZ < vec2.z)
+                        cameraZ = vec2.z - .9;
                 }
                 
-                if(cameraX < vec2.x){ //hitting wall from smaller x value
-                    cameraX = vec2.x - 1;
-                }
-            }else{
-                
-                if(cameraZ > vec2.z){
-                    cameraZ = vec2.z + 1;
-                }
-                
-                if(cameraZ < vec2.z){
-                    cameraZ = vec2.z - 1;
-                }
+                return;
             }
- 
-            return;
         }
-    } */
+    }
     
     cameraZ -= cos(cameraHorizontalRot) * zDelta * 0.001;
     cameraX += sin(cameraHorizontalRot) * zDelta * 0.001;
+}
+
+float RandomFloat(float min, float max)
+{
+    // this  function assumes max > min, you may want
+    // more robust error checking for a non-debug build
+    assert(max > min);
+    float random = ((float) rand()) / (float) RAND_MAX;
+    
+    // generate (in your case) a float between 0 and (4.5-.78)
+    // then add .78, giving you a float between .78 and 4.5
+    float range = max - min;
+    return (random*range) + min;
 }
 
 //sets up an vbo with data loaded in from an obj file
@@ -344,7 +441,7 @@ float r = 1; //length of every edge
     return tempIndices;
 }
 
-- (void) drawVBO1:(GLuint)textureID{
+- (void) drawVBO_Cube:(GLuint)textureID{
     
     glBindTexture(GL_TEXTURE_2D, textureID);
     
@@ -383,7 +480,7 @@ float r = 1; //length of every edge
 }
 
 
-- (void) drawVBO2:(GLuint)textureID{
+- (void) drawVBO_Model:(GLuint)textureID{
     glBindTexture(GL_TEXTURE_2D, textureID);
     
     
@@ -408,6 +505,7 @@ float r = 1; //length of every edge
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
 }
+
 
 - (void)setupShaders {
     _shader = [[BaseEffect alloc] initWithVertexShader:@"SimpleVertex.glsl" fragmentShader:@"SimpleFragment.glsl"];
@@ -604,31 +702,14 @@ void indexVBO_slow(
         for(int z = 0; z < mazeLength; z++){
            
             if (z == roundf(cameraZ) && x == roundf(cameraX)) {
-                float rotDegrees = GLKMathRadiansToDegrees(cameraHorizontalRot);
-                if (rotDegrees > 337.5 || rotDegrees <= 22.5) {
-                    [string appendString:@"@↓"];
-                } else if (rotDegrees > 22.5 && rotDegrees <= 67.5) {
-                    [string appendString:@"@↘"];
-                } else if (rotDegrees > 67.5 && rotDegrees <= 112.5) {
-                    [string appendString:@"@→"];
-                } else if (rotDegrees > 112.5 && rotDegrees <= 157.5) {
-                    [string appendString:@"@↗"];
-                } else if (rotDegrees > 157.5 && rotDegrees <= 202.5) {
-                    [string appendString:@"@↑"];
-                } else if (rotDegrees > 202.5 && rotDegrees <= 247.5) {
-                    [string appendString:@"@↖"];
-                } else if (rotDegrees > 247.5 && rotDegrees <= 292.5) {
-                    [string appendString:@"@←"];
-                } else if (rotDegrees > 292.5 && rotDegrees <= 337.5) {
-                    [string appendString:@"@↙"];
-                }
+                 [string appendString:@"📷"]; //🎥 🚘 📷
+            }else if(z == roundf(npcZ) && x == roundf(npcX)){
+                 [string appendString:@"🐰"]; //🐇
             } else {
                 if(mazeArray[x][z]){
-                    //[string appendString:@"  "];
-                    [string appendString:@"#"];
+                    [string appendString:@"  "];
                 } else {
-                    //[string appendString:@"██"];
-                    [string appendString:@"*"];
+                    [string appendString:@"██"];
                 }
             }
         }
@@ -637,173 +718,42 @@ void indexVBO_slow(
     return string;
 }
 
+
+void GenerateMaze() {
+    mazeArray[0][mazeEntrance] = true;
+    mazeArray[mazeLength - 1][mazeEntrance] = true;
+    DepthFirstSearch(1, 1);
+}
+
+void DepthFirstSearch(int x, int y) {
+    // Sets current cell as visited.
+    mazeArray[x][y] = true;
+    // Sets orderOfSearch to a random permutation of {0,1,2,3}.
+    int orderOfSearch[] = { 0, 1, 2, 3 };
+    for (int i = 0; i < 4; i++) {
+        int r = arc4random() % (4 - i) + i;
+        int temp = orderOfSearch[r];
+        orderOfSearch[r] = orderOfSearch[i];
+        orderOfSearch[i] = temp;
+    }
+    // Tries to visit cells to the North, East, South, and West in order of orderOfSearch.
+    for (int i = 0; i < 4; i++) {
+        if ((orderOfSearch[0] == i) && (y + 2 < mazeLength) && (!mazeArray[x][y + 2])) {
+            mazeArray[x][y + 1] = true;
+            DepthFirstSearch(x, y + 2);
+        } else if ((orderOfSearch[1] == i) && (x + 2 < mazeLength) && (!mazeArray[x + 2][y])) {
+            mazeArray[x + 1][y] = true;
+            DepthFirstSearch(x + 2, y);
+        } else if ((orderOfSearch[2] == i) && (y - 2 >= 0) && (!mazeArray[x][y - 2])) {
+            mazeArray[x][y - 1] = true;
+            DepthFirstSearch(x, y - 2);
+        } else if ((orderOfSearch[3] == i) && (x - 2 >= 0) && (!mazeArray[x - 2][y])) {
+            mazeArray[x - 1][y] = true;
+            DepthFirstSearch(x - 2, y);
+        }else{
+            totalWalls++;
+        }
+    }
+}
+
 @end
-
-/*
-
-// An array of 3 vectors which represents 3 vertices
-static const GLfloat g_vertex_buffer_data[] = {
-    -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-    -1.0f,-1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f, // triangle 1 : end
-    1.0f, 1.0f,-1.0f,  // triangle 2 : begin
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f, // triangle 2 : end
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f
-};
-
-// One color for each vertex. They were generated randomly.
-static const GLfloat g_color_buffer_data[] = {
-    0.583f,  0.771f,  0.014f,
-    0.609f,  0.115f,  0.436f,
-    0.327f,  0.483f,  0.844f,
-    0.822f,  0.569f,  0.201f,
-    0.435f,  0.602f,  0.223f,
-    0.310f,  0.747f,  0.185f,
-    0.597f,  0.770f,  0.761f,
-    0.559f,  0.436f,  0.730f,
-    0.359f,  0.583f,  0.152f,
-    0.483f,  0.596f,  0.789f,
-    0.559f,  0.861f,  0.639f,
-    0.195f,  0.548f,  0.859f,
-    0.014f,  0.184f,  0.576f,
-    0.771f,  0.328f,  0.970f,
-    0.406f,  0.615f,  0.116f,
-    0.676f,  0.977f,  0.133f,
-    0.971f,  0.572f,  0.833f,
-    0.140f,  0.616f,  0.489f,
-    0.997f,  0.513f,  0.064f,
-    0.945f,  0.719f,  0.592f,
-    0.543f,  0.021f,  0.978f,
-    0.279f,  0.317f,  0.505f,
-    0.167f,  0.620f,  0.077f,
-    0.347f,  0.857f,  0.137f,
-    0.055f,  0.953f,  0.042f,
-    0.714f,  0.505f,  0.345f,
-    0.783f,  0.290f,  0.734f,
-    0.722f,  0.645f,  0.174f,
-    0.302f,  0.455f,  0.848f,
-    0.225f,  0.587f,  0.040f,
-    0.517f,  0.713f,  0.338f,
-    0.053f,  0.959f,  0.120f,
-    0.393f,  0.621f,  0.362f,
-    0.673f,  0.211f,  0.457f,
-    0.820f,  0.883f,  0.371f,
-    0.982f,  0.099f,  0.879f
-};
-
-// Two UV coordinatesfor each vertex. They were created with Blender. You'll need to learn this yourself.
-static const GLfloat g_uv_buffer_data[] = {
-    0.000059f, 1.0f-0.000004f,
-    0.000103f, 1.0f-0.336048f,
-    0.335973f, 1.0f-0.335903f,
-    1.000023f, 1.0f-0.000013f,
-    0.667979f, 1.0f-0.335851f,
-    0.999958f, 1.0f-0.336064f,
-    0.667979f, 1.0f-0.335851f,
-    0.336024f, 1.0f-0.671877f,
-    0.667969f, 1.0f-0.671889f,
-    1.000023f, 1.0f-0.000013f,
-    0.668104f, 1.0f-0.000013f,
-    0.667979f, 1.0f-0.335851f,
-    0.000059f, 1.0f-0.000004f,
-    0.335973f, 1.0f-0.335903f,
-    0.336098f, 1.0f-0.000071f,
-    0.667979f, 1.0f-0.335851f,
-    0.335973f, 1.0f-0.335903f,
-    0.336024f, 1.0f-0.671877f,
-    1.000004f, 1.0f-0.671847f,
-    0.999958f, 1.0f-0.336064f,
-    0.667979f, 1.0f-0.335851f,
-    0.668104f, 1.0f-0.000013f,
-    0.335973f, 1.0f-0.335903f,
-    0.667979f, 1.0f-0.335851f,
-    0.335973f, 1.0f-0.335903f,
-    0.668104f, 1.0f-0.000013f,
-    0.336098f, 1.0f-0.000071f,
-    0.000103f, 1.0f-0.336048f,
-    0.000004f, 1.0f-0.671870f,
-    0.336024f, 1.0f-0.671877f,
-    0.000103f, 1.0f-0.336048f,
-    0.336024f, 1.0f-0.671877f,
-    0.335973f, 1.0f-0.335903f,
-    0.667969f, 1.0f-0.671889f,
-    1.000004f, 1.0f-0.671847f,
-    0.667979f, 1.0f-0.335851f
-};
- 
- 
- - (void) setupCube1{
- // Generate 1 buffer, put the resulting identifier in vertexbuffer
- glGenBuffers(1, &vertexbuffer);
- // The following commands will talk about our 'vertexbuffer' buffer
- glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
- // Give our vertices to OpenGL.
- glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
- 
- //Generate color buffer
- glGenBuffers(1, &colorbuffer);
- glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
- glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
- 
- }
-
- - (void) drawCube1{
- 
- glUniformMatrix4fv(glGetUniformLocation(PROGRAM_HANDLE, "P"), 1, FALSE, (const float *)ProjectionMatrix.m);
- glUniformMatrix4fv(glGetUniformLocation(PROGRAM_HANDLE, "MV"), 1, FALSE, (const float *)GLKMatrix4Multiply(ViewMatrix, Model).m);
- 
- 
- // 1st attribute buffer : vertices
- glEnableVertexAttribArray(0);
- glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
- glVertexAttribPointer(
- 0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
- 3,                  // size
- GL_FLOAT,           // type
- GL_FALSE,           // normalized?
- 0,                  // stride
- (void*)0            // array buffer offset
- );
- 
- 
- //glEnableVertexAttribArray(1); glBindBuffer(GL_ARRAY_BUFFER, textureID); glVertexAttribPointer(1,2,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
- glEnableVertexAttribArray(1); glBindBuffer(GL_ARRAY_BUFFER, uvBuffer); glVertexAttribPointer(1,2,GL_FLOAT,  GL_FALSE, 0,(void*)0 );
- 
- // Draw
- glDrawArrays(GL_TRIANGLES, 0, vertices.size()); // Starting from vertex 0; 3 vertices total -> 1 triangle
- //glDrawElements(GL_TRIANGLES, vertices.size() / sizeof(GLKVector3), GL_FLOAT, 0);
- glDisableVertexAttribArray(0);
- glDisableVertexAttribArray(1);
- }
- 
-*/

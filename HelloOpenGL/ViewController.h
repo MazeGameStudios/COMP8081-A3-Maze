@@ -12,6 +12,7 @@
 
 @interface ViewController : GLKViewController
 @property (weak, nonatomic) IBOutlet UILabel *mapLabel;
+@property (weak, nonatomic) IBOutlet UISlider *slider;
 
 
 @end

@@ -17,6 +17,13 @@
                                             action:@selector(handleSingleTap:)];
     [self.view addGestureRecognizer:singleFingerTap];
     
+    //Single finger double tap
+    UITapGestureRecognizer *doubleTap =
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+    doubleTap.numberOfTapsRequired = 2;
+    [doubleTap setNumberOfTouchesRequired:1];
+    [self.view addGestureRecognizer:doubleTap];
+    
     //handles panning
     UIPanGestureRecognizer *panning =
     [[UIPanGestureRecognizer alloc] initWithTarget:self
@@ -56,30 +63,11 @@
 
 - (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
 {
-    /*
-    //CGPoint location = [recognizer locationInView:[recognizer.view superview]];
-    //glClearColor(0,.9,0, 1.0);
-    if(tempVal == 0){
-        red = 0;
-        green = 1.0;
-        blue = 0.0;
-        
-        scale = 1.0;
-        tempVal = 1;
-    }else if(tempVal == 1){
-        red = 0;
-        green = 0;
-        blue = 1;
-        scale = 2.0;
-        tempVal = 2;
-    }else if(tempVal == 2){
-        red = 1;
-        green = 0;
-        blue = 0;
-        tempVal++;
-        scale = 3.0;
-        tempVal = 0;
-    }*/
+}
+
+//
+- (void)handleDoubleTap:(UITapGestureRecognizer *)recognizer { //toggles npc movement
+    myRenderer._isMoving = !myRenderer._isMoving;
 }
 
 //translate and rotate camera
@@ -87,12 +75,8 @@
 {
     CGPoint vel = [recognizer velocityInView:self.view];
     
-    if(togglePan){ //rotate
-        [myRenderer rotateCamera:vel.x secondDelta:vel.y];
-    }else{  //translate cam
-        [myRenderer translateCameraForward:vel.x secondDelta:vel.y];
-    }
-
+    [myRenderer rotateCamera:vel.x secondDelta:vel.y];
+    [myRenderer translateCameraForward:vel.x secondDelta:vel.y];
     /*
      if( fabs( vel.x) > fabs( vel.y) ){
      if (vel.x > 0)
@@ -114,17 +98,104 @@
     */
 }
 
-- (IBAction)togglePan:(id)sender {
-    togglePan = !togglePan;
-}
-
 //looking around horizontally and vertically.
 - (void)handleTwoFingerPan:(UIPanGestureRecognizer *)recognizer
 {
     
 }
 
+- (IBAction)btn1Handler:(id)sender { //toggle camera collision
+    myRenderer._cameraCollisionEnabled = !myRenderer._cameraCollisionEnabled;
+    if(myRenderer._cameraCollisionEnabled){
+      [sender setTitle:@"cam collision" forState:UIControlStateNormal];
+    }else{
+      [sender setTitle:@"!cam collision" forState:UIControlStateNormal];
+    }
+    
+}
+
+- (IBAction)btn2Handler:(id)sender { //enables npc movement
+    //myRenderer._isMoving = !myRenderer._isMoving;
+}
+
+- (IBAction)btn3Handler:(id)sender { //Toggles npc rotation
+    if(!myRenderer._isMoving)
+        myRenderer._isRotating = !myRenderer._isRotating;
+}
+
+- (IBAction)btn4Handler:(id)sender {
+}
+
+- (IBAction)btn5Handler:(id)sender { //reset
+    [myRenderer reset];
+}
+
+- (IBAction)dayToggleBtn:(id)sender {
+    myRenderer._isDay = !myRenderer._isDay;
+    if(myRenderer._isDay){
+        [sender setTitle:@"day" forState:UIControlStateNormal];
+    }else{
+        [sender setTitle:@"night" forState:UIControlStateNormal];
+    }
+}
+
+- (IBAction)spotlightToggle:(id)sender {
+    myRenderer._spotlightToggle = !myRenderer._spotlightToggle;
+    if(myRenderer._spotlightToggle){
+        [sender setTitle:@"spotlight" forState:UIControlStateNormal];
+    }else{
+        [sender setTitle:@"!spotlight" forState:UIControlStateNormal];
+    }
+}
+
+- (IBAction)fogToggle:(id)sender {
+    myRenderer._fogToggle = !myRenderer._fogToggle;
+    if(myRenderer._fogToggle){
+        [sender setTitle:@"fog" forState:UIControlStateNormal];
+    }else{
+        [sender setTitle:@"!fog" forState:UIControlStateNormal];
+    }
+}
+
+- (IBAction)fogExpToggle:(id)sender {
+    myRenderer._fogUseExp = !myRenderer._fogUseExp;
+    if(myRenderer._fogUseExp){
+        [sender setTitle:@"fog exp" forState:UIControlStateNormal];
+    }else{
+        [sender setTitle:@"!fog exp" forState:UIControlStateNormal];
+    }
+}
+
+- (IBAction)sliderHandler1:(id)sender {
+
+    NSLog(@"SliderValue ... %@",[NSString stringWithFormat:@"%f", self.slider.value]);
+}
+
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

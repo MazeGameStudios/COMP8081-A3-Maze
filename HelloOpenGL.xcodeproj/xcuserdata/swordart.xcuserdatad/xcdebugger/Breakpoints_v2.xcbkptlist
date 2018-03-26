@@ -9,28 +9,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "HelloOpenGL/ViewController.m"
-            timestampString = "543634907.723345"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "93"
-            endingLineNumber = "93"
-            landmarkName = "-handlePan:"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "HelloOpenGL/Renderer.mm"
-            timestampString = "543634907.7234139"
+            timestampString = "543727096.010283"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "314"
-            endingLineNumber = "314"
+            startingLineNumber = "411"
+            endingLineNumber = "411"
             landmarkName = "-setupVBO:vertexBuffer:uvBuffer:normalBuffer:elementBuffer:"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HelloOpenGL/Renderer.mm"
-            timestampString = "543634907.723828"
+            timestampString = "543727096.010402"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "316"
-            endingLineNumber = "316"
+            startingLineNumber = "413"
+            endingLineNumber = "413"
             landmarkName = "-setupVBO:vertexBuffer:uvBuffer:normalBuffer:elementBuffer:"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HelloOpenGL/Renderer.mm"
-            timestampString = "543634907.7241631"
+            timestampString = "543727096.0105"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "317"
-            endingLineNumber = "317"
+            startingLineNumber = "414"
+            endingLineNumber = "414"
             landmarkName = "-setupVBO:vertexBuffer:uvBuffer:normalBuffer:elementBuffer:"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HelloOpenGL/Renderer.mm"
-            timestampString = "543634907.724455"
+            timestampString = "543727096.010592"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
+            startingLineNumber = "172"
+            endingLineNumber = "172"
             landmarkName = "-setup:"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HelloOpenGL/Renderer.mm"
-            timestampString = "543634907.724732"
+            timestampString = "543727096.010691"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "150"
-            endingLineNumber = "150"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
             landmarkName = "-update"
             landmarkType = "7">
          </BreakpointContent>
@@ -106,12 +90,44 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "HelloOpenGL/Renderer.mm"
-            timestampString = "543634907.724995"
+            timestampString = "543727096.010784"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "250"
-            endingLineNumber = "250"
-            landmarkName = "-draw:"
+            startingLineNumber = "171"
+            endingLineNumber = "171"
+            landmarkName = "-setup:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HelloOpenGL/Renderer.mm"
+            timestampString = "543727096.010867"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "159"
+            endingLineNumber = "159"
+            landmarkName = "-setup:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "HelloOpenGL/Renderer.mm"
+            timestampString = "543727096.010947"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "149"
+            endingLineNumber = "149"
+            landmarkName = "-setup:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
