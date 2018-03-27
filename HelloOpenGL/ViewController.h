@@ -14,6 +14,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *mapLabel;
 @property (weak, nonatomic) IBOutlet UISlider *slider;
 
+@property (weak, nonatomic) IBOutlet UISlider *xSlider;
+@property (weak, nonatomic) IBOutlet UISlider *ySlider;
+@property (weak, nonatomic) IBOutlet UISlider *zSlider;
+@property (weak, nonatomic) IBOutlet UISlider *rotationSlider;
 
 @end
 

@@ -1,5 +1,7 @@
 //
-//  Modified by Daniel Tian (March 23, 2018)
+// @author: Daniel Tian
+// @date:   March 26, 2018
+//
 //
 
 #import "Renderer.h"
@@ -59,9 +61,7 @@ using namespace std;
     GLuint normalbuffer2;
     GLuint uvBuffer2;
     GLuint elementBuffer2;
-    
-    
-    GLuint asds;
+
 }
 
 @end
@@ -69,12 +69,12 @@ using namespace std;
 @implementation Renderer
 
 @synthesize _isMoving;
-@synthesize _isRotating;
 @synthesize _cameraCollisionEnabled;
 @synthesize _spotlightToggle;
 @synthesize _fogToggle;
 @synthesize _fogUseExp;
 @synthesize _isDay;
+@synthesize npcRotY;
 
 float collisionOffset = 0.9;
 float edgeLength = 0.8; //length of a squares edge
@@ -87,7 +87,7 @@ int totalWalls = 0;
 
 bool both, west, east;
 
-float npcX = 0, npcZ = mazeEntrance, npcRotY = 1.7, npcSpeed = 3;
+float npcX = 0, npcZ = mazeEntrance, npcY = .4, npcSpeed = 3, npcScale = .8;
 int maxMoveFrames = 120, currentFrames = 60;
 
 typedef struct{
@@ -157,24 +157,23 @@ MyVec2 coordinates[mazeLength*mazeLength];
     glUniform4f(glGetUniformLocation(PROGRAM_HANDLE, "spotlightColor"), 0.5, 0.5, 0.5, 1.0);
     
     textureWallID = [self setupTexture:@"greywall.jpg"];
-    textureWallLeftID = [self setupTexture:@"goldwall.jpg"];
-    textureWallRightID = [self setupTexture:@"bluewall.jpg"];
-    textureWallBothID = [self setupTexture:@"mosswall.jpeg"];
+    textureWallLeftID = [self setupTexture:@"mc_gold.png"];
+    textureWallRightID = [self setupTexture:@"mc_redstone.png"];
+    textureWallBothID = [self setupTexture:@"realistic_stone.jpg"];
     
     floorTextureID = [self setupTexture:@"maze_floor.jpg"];
-    npcTextureID = [self setupTexture:@"diamond.jpg"];
     textureSkyID = [self setupTexture:@"sky.jpg"];
+    npcTextureID = [self setupTexture:@"diamond.jpg"];
     
     indices = [self setupVBO:@"cube_mit" vertexBuffer:vertexbuffer uvBuffer:uvBuffer normalBuffer:normalbuffer elementBuffer:elementBuffer];  //Walls and floor rendered as cubes with different textures and scale
     
-    indices2 = [self setupVBO:@"trooper" vertexBuffer:vertexbuffer2 uvBuffer:uvBuffer2 normalBuffer:normalbuffer2 elementBuffer:elementBuffer2]; //Our npc
+    indices2 = [self setupVBO:@"dog" vertexBuffer:vertexbuffer2 uvBuffer:uvBuffer2 normalBuffer:normalbuffer2 elementBuffer:elementBuffer2]; //Our npc
+
     
 }
 
 
 - (void)update {
-
-    if(_isRotating) npcRotY += 0.05f;
     
     //Projection matrix
     float aspect = (float)theView.drawableWidth / (float)theView.drawableHeight;
@@ -214,8 +213,8 @@ MyVec2 coordinates[mazeLength*mazeLength];
     [self drawVBO_Cube:textureSkyID];
     
     
-    Model = GLKMatrix4Translate(GLKMatrix4Identity, npcX, .4, npcZ);
-    Model = GLKMatrix4Scale(Model, .8, .8, .8);
+    Model = GLKMatrix4Translate(GLKMatrix4Identity, npcX, npcY, npcZ);
+    Model = GLKMatrix4Scale(Model, npcScale, npcScale, npcScale);
     Model = GLKMatrix4RotateY(Model, npcRotY);
     [self drawVBO_Model:npcTextureID];
     
@@ -232,7 +231,7 @@ MyVec2 coordinates[mazeLength*mazeLength];
             }else{  //false = wall
                 
                 Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 0, z);
-                Model = GLKMatrix4Scale(Model, 1, 1, 1);    //floor will be a 1x1x1 cube
+                Model = GLKMatrix4Scale(Model, 1, 1, 1);    //floor will be a 1x.1x1 cube
                 [self drawVBO_Cube:floorTextureID];
                 
                 Model = GLKMatrix4Translate(GLKMatrix4Identity, x, 1.5, z);
@@ -344,6 +343,40 @@ MyVec2 coordinates[mazeLength*mazeLength];
 }
 
 
+-(void) translateNPC:(float)xDelta secondDelta:(float)yDelta thirdDelta:(float)zDelta{
+    
+    npcZ += zDelta * npcSpeed * 0.01;
+    npcY += yDelta * npcSpeed * 0.01;
+    npcX += xDelta * npcSpeed * 0.01;
+    /*
+    for(const MyVec2 &vec2 : coordinates){
+        
+        if(abs(npcX - vec2.x) < edgeLength && abs(npcZ - vec2.z ) < edgeLength){  //collided with something
+            
+            if(vec2.x == 0 && vec2.z == 0)  break;
+            
+            npcRotY = RandomFloat(0, 6.28055);
+            
+            if(abs(npcX - vec2.x) > abs(npcZ - vec2.z)){
+                
+                if(npcX > vec2.x) //hitting the wall from a greater x value
+                    npcX = vec2.x + collisionOffset;
+                if(npcX < vec2.x) //hitting wall from smaller x value
+                    npcX = vec2.x - collisionOffset;
+                
+            }else{
+                if(npcZ > vec2.z)  npcZ = vec2.z + collisionOffset;
+                
+                if(npcZ < vec2.z)  npcZ = vec2.z - collisionOffset;
+            }
+            
+            return;
+        }
+    }
+    */
+    
+}
+
 //Point p1 is the center of one square, and p2 is of the other
 //if (Math.abs(p1.x - p2.x) < r && Math.abs(p1.y - p2.y) < r){ collided!}
 - (void)translateCameraForward:(float)xDelta secondDelta:(float)zDelta{
@@ -386,14 +419,20 @@ MyVec2 coordinates[mazeLength*mazeLength];
     cameraX += sin(cameraHorizontalRot) * zDelta * 0.001;
 }
 
+- (void)scaleModel:(float)scale{
+    npcScale = scale;
+}
+
+- (bool) isSameCell{
+    return (sqrt(pow(cameraX-npcX, 2) + pow(cameraZ-npcZ,2)  ) <= 1.5);
+}
+
 float RandomFloat(float min, float max)
 {
-    // this  function assumes max > min, you may want
-    // more robust error checking for a non-debug build
     assert(max > min);
     float random = ((float) rand()) / (float) RAND_MAX;
     
-    // generate (in your case) a float between 0 and (4.5-.78)
+    //Example: generate a float between 0 and (4.5-.78)
     // then add .78, giving you a float between .78 and 4.5
     float range = max - min;
     return (random*range) + min;

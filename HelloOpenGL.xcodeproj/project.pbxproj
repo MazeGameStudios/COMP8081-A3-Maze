@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8C2EB552206AD722000DA10F /* dog.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8C2EB551206AD722000DA10F /* dog.jpg */; };
+		8C2EB556206ADA12000DA10F /* dog.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8C2EB555206ADA12000DA10F /* dog.obj */; };
+		8C2EB558206ADA19000DA10F /* mc_gold.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2EB557206ADA19000DA10F /* mc_gold.png */; };
+		8C2EB55A206ADA1F000DA10F /* mc_redstone.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C2EB559206ADA1F000DA10F /* mc_redstone.png */; };
 		8C7FEFF52058E27C0009F65B /* SimpleVertex.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEFF42058E27C0009F65B /* SimpleVertex.glsl */; };
 		8C7FEFF72058E2C60009F65B /* SimpleFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEFF62058E2C60009F65B /* SimpleFragment.glsl */; };
 		8C8BA4FD2064B27000F07D95 /* cube_mit.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8C8BA4FC2064B27000F07D95 /* cube_mit.obj */; };
@@ -25,17 +29,19 @@
 		8CD650E92031B98600D6A30F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD650E82031B98600D6A30F /* Assets.xcassets */; };
 		8CD650EC2031B98600D6A30F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8CD650EA2031B98600D6A30F /* LaunchScreen.storyboard */; };
 		8CD650EF2031B98600D6A30F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD650EE2031B98600D6A30F /* main.m */; };
-		8CE761552065C2A20096665E /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761542065C2A20096665E /* cube.obj */; };
 		8CE761572065C3090096665E /* monkey.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761562065C3090096665E /* monkey.obj */; };
 		8CE761592065C36F0096665E /* cone.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761582065C36F0096665E /* cone.obj */; };
 		8CE761612065F5750096665E /* trooper.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761602065F5750096665E /* trooper.obj */; };
 		8CE761632065F6C60096665E /* bluewall.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761622065F6C60096665E /* bluewall.jpg */; };
-		8CE761652065F76B0096665E /* goldwall.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761642065F76B0096665E /* goldwall.jpg */; };
 		8CE761692065FAC80096665E /* rabbit.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761682065FAC80096665E /* rabbit.obj */; };
 		8CE7616D2065FD830096665E /* rabbit.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CE7616C2065FD830096665E /* rabbit.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		8C2EB551206AD722000DA10F /* dog.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = dog.jpg; sourceTree = "<group>"; };
+		8C2EB555206ADA12000DA10F /* dog.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dog.obj; sourceTree = "<group>"; };
+		8C2EB557206ADA19000DA10F /* mc_gold.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mc_gold.png; sourceTree = "<group>"; };
+		8C2EB559206ADA1F000DA10F /* mc_redstone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mc_redstone.png; sourceTree = "<group>"; };
 		8C7FEFF42058E27C0009F65B /* SimpleVertex.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = SimpleVertex.glsl; sourceTree = "<group>"; };
 		8C7FEFF62058E2C60009F65B /* SimpleFragment.glsl */ = {isa = PBXFileReference; lastKnownFileType = text; path = SimpleFragment.glsl; sourceTree = "<group>"; };
 		8C8BA4FC2064B27000F07D95 /* cube_mit.obj */ = {isa = PBXFileReference; lastKnownFileType = text; path = cube_mit.obj; sourceTree = "<group>"; };
@@ -60,12 +66,10 @@
 		8CD650EB2031B98600D6A30F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8CD650ED2031B98600D6A30F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8CD650EE2031B98600D6A30F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		8CE761542065C2A20096665E /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cube.obj; sourceTree = "<group>"; };
 		8CE761562065C3090096665E /* monkey.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = monkey.obj; sourceTree = "<group>"; };
 		8CE761582065C36F0096665E /* cone.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cone.obj; sourceTree = "<group>"; };
 		8CE761602065F5750096665E /* trooper.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trooper.obj; sourceTree = "<group>"; };
 		8CE761622065F6C60096665E /* bluewall.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = bluewall.jpg; sourceTree = "<group>"; };
-		8CE761642065F76B0096665E /* goldwall.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = goldwall.jpg; sourceTree = "<group>"; };
 		8CE761682065FAC80096665E /* rabbit.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rabbit.obj; sourceTree = "<group>"; };
 		8CE7616C2065FD830096665E /* rabbit.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = rabbit.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -132,18 +136,20 @@
 			isa = PBXGroup;
 			children = (
 				8CE761622065F6C60096665E /* bluewall.jpg */,
-				8CE761642065F76B0096665E /* goldwall.jpg */,
 				8CB0B35420686F9E003B65D2 /* greywall.jpg */,
+				8C2EB551206AD722000DA10F /* dog.jpg */,
+				8C2EB555206ADA12000DA10F /* dog.obj */,
 				8CB0B35520686F9E003B65D2 /* mosswall.jpeg */,
 				8CB0B35720686F9E003B65D2 /* realistic_stone.jpg */,
 				8CB0B36420688F77003B65D2 /* diamond.jpg */,
 				8CB0B35620686F9E003B65D2 /* stone_floor.png */,
+				8C2EB557206ADA19000DA10F /* mc_gold.png */,
 				8CE7616C2065FD830096665E /* rabbit.jpg */,
 				8CB0B35220686DAD003B65D2 /* maze_floor.jpg */,
+				8C2EB559206ADA1F000DA10F /* mc_redstone.png */,
 				8CB0B362206873E7003B65D2 /* sky.jpg */,
 				8C8BA4FC2064B27000F07D95 /* cube_mit.obj */,
 				8CE761562065C3090096665E /* monkey.obj */,
-				8CE761542065C2A20096665E /* cube.obj */,
 				8CE761582065C36F0096665E /* cone.obj */,
 				8CE761602065F5750096665E /* trooper.obj */,
 				8CE761682065FAC80096665E /* rabbit.obj */,
@@ -214,6 +220,7 @@
 				8CE7616D2065FD830096665E /* rabbit.jpg in Resources */,
 				8CB0B35A20686F9E003B65D2 /* stone_floor.png in Resources */,
 				8C8BA4FD2064B27000F07D95 /* cube_mit.obj in Resources */,
+				8C2EB55A206ADA1F000DA10F /* mc_redstone.png in Resources */,
 				8CB0B363206873E7003B65D2 /* sky.jpg in Resources */,
 				8CE761612065F5750096665E /* trooper.obj in Resources */,
 				8C7FEFF52058E27C0009F65B /* SimpleVertex.glsl in Resources */,
@@ -221,14 +228,15 @@
 				8CE761692065FAC80096665E /* rabbit.obj in Resources */,
 				8CE761632065F6C60096665E /* bluewall.jpg in Resources */,
 				8CB0B35820686F9E003B65D2 /* greywall.jpg in Resources */,
+				8C2EB552206AD722000DA10F /* dog.jpg in Resources */,
 				8CE761592065C36F0096665E /* cone.obj in Resources */,
-				8CE761552065C2A20096665E /* cube.obj in Resources */,
 				8CD650E72031B98600D6A30F /* Main.storyboard in Resources */,
 				8CB0B35B20686F9E003B65D2 /* realistic_stone.jpg in Resources */,
+				8C2EB556206ADA12000DA10F /* dog.obj in Resources */,
+				8C2EB558206ADA19000DA10F /* mc_gold.png in Resources */,
 				8CE761572065C3090096665E /* monkey.obj in Resources */,
 				8CB0B35320686DAD003B65D2 /* maze_floor.jpg in Resources */,
 				8CB0B36520688F78003B65D2 /* diamond.jpg in Resources */,
-				8CE761652065F76B0096665E /* goldwall.jpg in Resources */,
 				8C7FEFF72058E2C60009F65B /* SimpleFragment.glsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

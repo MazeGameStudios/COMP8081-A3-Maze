@@ -2,20 +2,17 @@
 
 @interface ViewController (){
     Renderer *myRenderer;
-    bool togglePan;
+    bool displayMinimap;
 }
 @end
 
 @implementation ViewController
 
+float delta_x = 0, delta_y = 0, delta_z = 0;
+float translationVal = 2.0;
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    //Single tap handler
-    UITapGestureRecognizer *singleFingerTap =
-    [[UITapGestureRecognizer alloc] initWithTarget:self
-                                            action:@selector(handleSingleTap:)];
-    [self.view addGestureRecognizer:singleFingerTap];
     
     //Single finger double tap
     UITapGestureRecognizer *doubleTap =
@@ -31,103 +28,77 @@
     [self.view addGestureRecognizer:panning];
     
     /*
-    UIPanGestureRecognizer *twoFingerPan =
-    [[UIPanGestureRecognizer alloc] initWithTarget:self
+     //Single tap handler
+     UITapGestureRecognizer *singleFingerTap =
+     [[UITapGestureRecognizer alloc] initWithTarget:self
+     action:@selector(handleSingleTap:)];
+     [self.view addGestureRecognizer:singleFingerTap];
+     
+     UIPanGestureRecognizer *twoFingerPan =
+     [[UIPanGestureRecognizer alloc] initWithTarget:self
                                             action:@selector(handleTwoFingerPan:)];
-    twoFingerPan.delegate = self;
-    twoFingerPan.minimumNumberOfTouches = 2;
-    twoFingerPan.maximumNumberOfTouches = 2;
-    [self.view addGestureRecognizer:twoFingerPan]; */
-    
+     twoFingerPan.delegate = self;
+     twoFingerPan.minimumNumberOfTouches = 2;
+     twoFingerPan.maximumNumberOfTouches = 2;
+     [self.view addGestureRecognizer:twoFingerPan]; */
     
     //Setup open gl context
     myRenderer = [[Renderer alloc] init];
     GLKView *view = (GLKView *)self.view;
     [myRenderer setup:view];
-    
-    togglePan = true;
+   
+    displayMinimap = true;
 }
 
 
 - (void)update
 {
     [myRenderer update];
-    _mapLabel.text = [myRenderer getMinimap];
+    _mapLabel.text = (displayMinimap)?[myRenderer getMinimap]:@"";
+     [myRenderer translateNPC:delta_x secondDelta:delta_y thirdDelta:delta_z];
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    
      [myRenderer draw:rect];
 }
 
-- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
-{
-}
-
-//
-- (void)handleDoubleTap:(UITapGestureRecognizer *)recognizer { //toggles npc movement
+//toggles npc ai movement via double tap
+- (void)handleDoubleTap:(UITapGestureRecognizer *)recognizer {
     myRenderer._isMoving = !myRenderer._isMoving;
 }
 
-//translate and rotate camera
+//Camera transformations
 - (void)handlePan:(UIPanGestureRecognizer *)recognizer
 {
     CGPoint vel = [recognizer velocityInView:self.view];
-    
     [myRenderer rotateCamera:vel.x secondDelta:vel.y];
     [myRenderer translateCameraForward:vel.x secondDelta:vel.y];
-    /*
-     if( fabs( vel.x) > fabs( vel.y) ){
-     if (vel.x > 0)
-     {
-     // user dragged towards the right
-     //[glesRenderer translateRect:(translationDelta) secondDelta:(0.0f)];
-     }
-     else{
-     // user dragged towards the left
-     }
-     }else{
-     if(vel.y < 0){
-     //up
-     }
-     else{
-     //down
-     }
-     }
-    */
-}
-
-//looking around horizontally and vertically.
-- (void)handleTwoFingerPan:(UIPanGestureRecognizer *)recognizer
-{
-    
 }
 
 - (IBAction)btn1Handler:(id)sender { //toggle camera collision
     myRenderer._cameraCollisionEnabled = !myRenderer._cameraCollisionEnabled;
     if(myRenderer._cameraCollisionEnabled){
-      [sender setTitle:@"cam collision" forState:UIControlStateNormal];
+      [sender setTitle:@"camCollide" forState:UIControlStateNormal];
     }else{
-      [sender setTitle:@"!cam collision" forState:UIControlStateNormal];
+      [sender setTitle:@"!camCollide" forState:UIControlStateNormal];
     }
     
 }
 
-- (IBAction)btn2Handler:(id)sender { //enables npc movement
-    //myRenderer._isMoving = !myRenderer._isMoving;
+- (IBAction)btn2Handler:(id)sender { //toggle minimap
+    displayMinimap = !displayMinimap;
+    if(displayMinimap){
+        [sender setTitle:@"minimap" forState:UIControlStateNormal];
+    }else{
+        [sender setTitle:@"!minimap" forState:UIControlStateNormal];
+    }
 }
 
-- (IBAction)btn3Handler:(id)sender { //Toggles npc rotation
-    if(!myRenderer._isMoving)
-        myRenderer._isRotating = !myRenderer._isRotating;
-}
-
-- (IBAction)btn4Handler:(id)sender {
-}
 
 - (IBAction)btn5Handler:(id)sender { //reset
     [myRenderer reset];
+    delta_x = delta_z = delta_y = 0;
 }
 
 - (IBAction)dayToggleBtn:(id)sender {
@@ -166,9 +137,65 @@
     }
 }
 
+//scale npc
 - (IBAction)sliderHandler1:(id)sender {
+    //NSLog(@"SliderValue ... %@",[NSString stringWithFormat:@"%f", self.slider.value]);
+    [myRenderer scaleModel:self.slider.value];
+}
 
-    NSLog(@"SliderValue ... %@",[NSString stringWithFormat:@"%f", self.slider.value]);
+- (IBAction)translateNpcx:(id)sender {
+    if(myRenderer._isMoving) return; //if not stationary, return
+    
+    if(self.xSlider.value < -1){ //translate x in negative direction
+        delta_x = -translationVal;
+    }else if(self.xSlider.value > 1){
+        delta_x = translationVal;
+    }else{
+        delta_x = 0;
+    }
+}
+
+- (IBAction)translateNpcY:(id)sender {
+    if(myRenderer._isMoving) return;
+    
+    if(self.ySlider.value < -1){ //translate y in negative direction
+        delta_y = -translationVal;
+    }else if(self.ySlider.value > 1){
+        delta_y = translationVal;
+    }else{
+        delta_y = 0;
+    }
+}
+
+- (IBAction)translateNpcZ:(id)sender {
+    
+    if(myRenderer._isMoving) return;
+    
+    if(self.zSlider.value < -1){ //translate z in negative direction
+        delta_z = -translationVal;
+    }else if(self.zSlider.value > 1){
+        delta_z = translationVal;
+    }else{
+        delta_z = 0;
+    }
+    
+}
+
+- (IBAction)rotateNpc:(id)sender {
+    
+    //if([myRenderer isSameCell])
+    
+    [myRenderer setNpcRotY:self.rotationSlider.value];
+
+}
+
+
+- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
+{
+}
+
+- (void)handleTwoFingerPan:(UIPanGestureRecognizer *)recognizer
+{
 }
 
 @end

@@ -7,7 +7,6 @@
 
 @interface Renderer : GLKViewController //Originally NSO object
 
-@property bool _isRotating;
 @property bool _isMoving;
 @property bool _cameraCollisionEnabled;
 
@@ -15,6 +14,7 @@
 @property bool _fogToggle;
 @property bool _fogUseExp;
 @property bool _isDay;
+@property float npcRotY;
 
 
 - (void)setup:(GLKView *)view;
@@ -24,7 +24,10 @@
 - (NSString*)getMinimap;
 - (void)rotateCamera:(float)xDelta secondDelta:(float)zDelta;
 - (void)translateCameraForward:(float)xDelta secondDelta:(float)zDelta;
+- (void)translateNPC:(float)xDelta secondDelta:(float)YDelta thirdDelta:(float)zDelta;
+- (void)scaleModel:(float)scale;
 - (void)draw:(CGRect)drawRect;
+- (bool)isSameCell;
 
 @end
 
