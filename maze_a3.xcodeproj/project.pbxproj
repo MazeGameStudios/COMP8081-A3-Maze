@@ -15,9 +15,7 @@
 		8C7FEFF72058E2C60009F65B /* SimpleFragment.glsl in Resources */ = {isa = PBXBuildFile; fileRef = 8C7FEFF62058E2C60009F65B /* SimpleFragment.glsl */; };
 		8C8BA4FD2064B27000F07D95 /* cube_mit.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8C8BA4FC2064B27000F07D95 /* cube_mit.obj */; };
 		8CACA663206463FF00CB42A6 /* Renderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8CACA662206463FF00CB42A6 /* Renderer.mm */; };
-		8CB0B35320686DAD003B65D2 /* maze_floor.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CB0B35220686DAD003B65D2 /* maze_floor.jpg */; };
 		8CB0B35820686F9E003B65D2 /* greywall.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CB0B35420686F9E003B65D2 /* greywall.jpg */; };
-		8CB0B35920686F9E003B65D2 /* mosswall.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 8CB0B35520686F9E003B65D2 /* mosswall.jpeg */; };
 		8CB0B35A20686F9E003B65D2 /* stone_floor.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CB0B35620686F9E003B65D2 /* stone_floor.png */; };
 		8CB0B35B20686F9E003B65D2 /* realistic_stone.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CB0B35720686F9E003B65D2 /* realistic_stone.jpg */; };
 		8CB0B363206873E7003B65D2 /* sky.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CB0B362206873E7003B65D2 /* sky.jpg */; };
@@ -29,10 +27,6 @@
 		8CD650E92031B98600D6A30F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8CD650E82031B98600D6A30F /* Assets.xcassets */; };
 		8CD650EC2031B98600D6A30F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8CD650EA2031B98600D6A30F /* LaunchScreen.storyboard */; };
 		8CD650EF2031B98600D6A30F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD650EE2031B98600D6A30F /* main.m */; };
-		8CE761572065C3090096665E /* monkey.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761562065C3090096665E /* monkey.obj */; };
-		8CE761592065C36F0096665E /* cone.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761582065C36F0096665E /* cone.obj */; };
-		8CE761612065F5750096665E /* trooper.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761602065F5750096665E /* trooper.obj */; };
-		8CE761632065F6C60096665E /* bluewall.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761622065F6C60096665E /* bluewall.jpg */; };
 		8CE761692065FAC80096665E /* rabbit.obj in Resources */ = {isa = PBXBuildFile; fileRef = 8CE761682065FAC80096665E /* rabbit.obj */; };
 		8CE7616D2065FD830096665E /* rabbit.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 8CE7616C2065FD830096665E /* rabbit.jpg */; };
 /* End PBXBuildFile section */
@@ -47,16 +41,14 @@
 		8C8BA4FC2064B27000F07D95 /* cube_mit.obj */ = {isa = PBXFileReference; lastKnownFileType = text; path = cube_mit.obj; sourceTree = "<group>"; };
 		8CACA662206463FF00CB42A6 /* Renderer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Renderer.mm; sourceTree = "<group>"; };
 		8CACA6642064641300CB42A6 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
-		8CB0B35220686DAD003B65D2 /* maze_floor.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = maze_floor.jpg; sourceTree = "<group>"; };
 		8CB0B35420686F9E003B65D2 /* greywall.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = greywall.jpg; sourceTree = "<group>"; };
-		8CB0B35520686F9E003B65D2 /* mosswall.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = mosswall.jpeg; sourceTree = "<group>"; };
 		8CB0B35620686F9E003B65D2 /* stone_floor.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stone_floor.png; sourceTree = "<group>"; };
 		8CB0B35720686F9E003B65D2 /* realistic_stone.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = realistic_stone.jpg; sourceTree = "<group>"; };
 		8CB0B362206873E7003B65D2 /* sky.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = sky.jpg; sourceTree = "<group>"; };
 		8CB0B36420688F77003B65D2 /* diamond.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = diamond.jpg; sourceTree = "<group>"; };
 		8CC618F92059C9E000948026 /* BaseEffect.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseEffect.m; sourceTree = "<group>"; };
 		8CC618FB2059CA0700948026 /* BaseEffect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseEffect.h; sourceTree = "<group>"; };
-		8CD650DC2031B98600D6A30F /* HelloOpenGL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloOpenGL.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8CD650DC2031B98600D6A30F /* maze_a3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = maze_a3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CD650DF2031B98600D6A30F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8CD650E02031B98600D6A30F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		8CD650E22031B98600D6A30F /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
@@ -66,10 +58,6 @@
 		8CD650EB2031B98600D6A30F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8CD650ED2031B98600D6A30F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8CD650EE2031B98600D6A30F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		8CE761562065C3090096665E /* monkey.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = monkey.obj; sourceTree = "<group>"; };
-		8CE761582065C36F0096665E /* cone.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cone.obj; sourceTree = "<group>"; };
-		8CE761602065F5750096665E /* trooper.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trooper.obj; sourceTree = "<group>"; };
-		8CE761622065F6C60096665E /* bluewall.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = bluewall.jpg; sourceTree = "<group>"; };
 		8CE761682065FAC80096665E /* rabbit.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rabbit.obj; sourceTree = "<group>"; };
 		8CE7616C2065FD830096665E /* rabbit.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = rabbit.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -100,7 +88,7 @@
 		8CD650D32031B98600D6A30F = {
 			isa = PBXGroup;
 			children = (
-				8CD650DE2031B98600D6A30F /* HelloOpenGL */,
+				8CD650DE2031B98600D6A30F /* HelloOpenGl */,
 				8CD650DD2031B98600D6A30F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,12 +96,12 @@
 		8CD650DD2031B98600D6A30F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8CD650DC2031B98600D6A30F /* HelloOpenGL.app */,
+				8CD650DC2031B98600D6A30F /* maze_a3.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8CD650DE2031B98600D6A30F /* HelloOpenGL */ = {
+		8CD650DE2031B98600D6A30F /* HelloOpenGl */ = {
 			isa = PBXGroup;
 			children = (
 				8C7FEFF82058E3AF0009F65B /* resources */,
@@ -129,29 +117,23 @@
 				8CACA662206463FF00CB42A6 /* Renderer.mm */,
 				8CACA6642064641300CB42A6 /* Renderer.h */,
 			);
-			path = HelloOpenGL;
+			path = HelloOpenGl;
 			sourceTree = "<group>";
 		};
 		8CE7616B2065FBAF0096665E /* objs */ = {
 			isa = PBXGroup;
 			children = (
-				8CE761622065F6C60096665E /* bluewall.jpg */,
 				8CB0B35420686F9E003B65D2 /* greywall.jpg */,
 				8C2EB551206AD722000DA10F /* dog.jpg */,
 				8C2EB555206ADA12000DA10F /* dog.obj */,
-				8CB0B35520686F9E003B65D2 /* mosswall.jpeg */,
 				8CB0B35720686F9E003B65D2 /* realistic_stone.jpg */,
 				8CB0B36420688F77003B65D2 /* diamond.jpg */,
 				8CB0B35620686F9E003B65D2 /* stone_floor.png */,
 				8C2EB557206ADA19000DA10F /* mc_gold.png */,
 				8CE7616C2065FD830096665E /* rabbit.jpg */,
-				8CB0B35220686DAD003B65D2 /* maze_floor.jpg */,
 				8C2EB559206ADA1F000DA10F /* mc_redstone.png */,
 				8CB0B362206873E7003B65D2 /* sky.jpg */,
 				8C8BA4FC2064B27000F07D95 /* cube_mit.obj */,
-				8CE761562065C3090096665E /* monkey.obj */,
-				8CE761582065C36F0096665E /* cone.obj */,
-				8CE761602065F5750096665E /* trooper.obj */,
 				8CE761682065FAC80096665E /* rabbit.obj */,
 			);
 			path = objs;
@@ -160,9 +142,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8CD650DB2031B98600D6A30F /* HelloOpenGL */ = {
+		8CD650DB2031B98600D6A30F /* maze_a3 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8CD650F22031B98600D6A30F /* Build configuration list for PBXNativeTarget "HelloOpenGL" */;
+			buildConfigurationList = 8CD650F22031B98600D6A30F /* Build configuration list for PBXNativeTarget "maze_a3" */;
 			buildPhases = (
 				8CD650D82031B98600D6A30F /* Sources */,
 				8CD650D92031B98600D6A30F /* Frameworks */,
@@ -172,9 +154,9 @@
 			);
 			dependencies = (
 			);
-			name = HelloOpenGL;
+			name = maze_a3;
 			productName = HelloOpenGL;
-			productReference = 8CD650DC2031B98600D6A30F /* HelloOpenGL.app */;
+			productReference = 8CD650DC2031B98600D6A30F /* maze_a3.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -192,7 +174,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 8CD650D72031B98600D6A30F /* Build configuration list for PBXProject "HelloOpenGL" */;
+			buildConfigurationList = 8CD650D72031B98600D6A30F /* Build configuration list for PBXProject "maze_a3" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -205,7 +187,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8CD650DB2031B98600D6A30F /* HelloOpenGL */,
+				8CD650DB2031B98600D6A30F /* maze_a3 */,
 			);
 		};
 /* End PBXProject section */
@@ -222,20 +204,14 @@
 				8C8BA4FD2064B27000F07D95 /* cube_mit.obj in Resources */,
 				8C2EB55A206ADA1F000DA10F /* mc_redstone.png in Resources */,
 				8CB0B363206873E7003B65D2 /* sky.jpg in Resources */,
-				8CE761612065F5750096665E /* trooper.obj in Resources */,
 				8C7FEFF52058E27C0009F65B /* SimpleVertex.glsl in Resources */,
-				8CB0B35920686F9E003B65D2 /* mosswall.jpeg in Resources */,
 				8CE761692065FAC80096665E /* rabbit.obj in Resources */,
-				8CE761632065F6C60096665E /* bluewall.jpg in Resources */,
 				8CB0B35820686F9E003B65D2 /* greywall.jpg in Resources */,
 				8C2EB552206AD722000DA10F /* dog.jpg in Resources */,
-				8CE761592065C36F0096665E /* cone.obj in Resources */,
 				8CD650E72031B98600D6A30F /* Main.storyboard in Resources */,
 				8CB0B35B20686F9E003B65D2 /* realistic_stone.jpg in Resources */,
 				8C2EB556206ADA12000DA10F /* dog.obj in Resources */,
 				8C2EB558206ADA19000DA10F /* mc_gold.png in Resources */,
-				8CE761572065C3090096665E /* monkey.obj in Resources */,
-				8CB0B35320686DAD003B65D2 /* maze_floor.jpg in Resources */,
 				8CB0B36520688F78003B65D2 /* diamond.jpg in Resources */,
 				8C7FEFF72058E2C60009F65B /* SimpleFragment.glsl in Resources */,
 			);
@@ -388,7 +364,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LCGG6U56V4;
-				INFOPLIST_FILE = HelloOpenGL/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/HelloOpenGl/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = dt.com.HelloOpenGL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -402,7 +378,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LCGG6U56V4;
-				INFOPLIST_FILE = HelloOpenGL/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/HelloOpenGl/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = dt.com.HelloOpenGL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -413,7 +389,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8CD650D72031B98600D6A30F /* Build configuration list for PBXProject "HelloOpenGL" */ = {
+		8CD650D72031B98600D6A30F /* Build configuration list for PBXProject "maze_a3" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8CD650F02031B98600D6A30F /* Debug */,
@@ -422,7 +398,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8CD650F22031B98600D6A30F /* Build configuration list for PBXNativeTarget "HelloOpenGL" */ = {
+		8CD650F22031B98600D6A30F /* Build configuration list for PBXNativeTarget "maze_a3" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8CD650F32031B98600D6A30F /* Debug */,

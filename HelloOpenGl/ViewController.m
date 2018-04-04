@@ -139,6 +139,7 @@ float translationVal = 2.0;
 
 //scale npc
 - (IBAction)sliderHandler1:(id)sender {
+    if(myRenderer._isMoving || ![myRenderer isSameCell]) return;
     //NSLog(@"SliderValue ... %@",[NSString stringWithFormat:@"%f", self.slider.value]);
     [myRenderer scaleModel:self.slider.value];
 }
@@ -183,13 +184,14 @@ float translationVal = 2.0;
 
 - (IBAction)rotateNpc:(id)sender {
     
-    //if([myRenderer isSameCell])
+     if(myRenderer._isMoving || ![myRenderer isSameCell]) return;
     
     [myRenderer setNpcRotY:self.rotationSlider.value];
 
 }
 
 
+/* Tap gestures currently empty, to be implemented if needed */
 - (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
 {
 }

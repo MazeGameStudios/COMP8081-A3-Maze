@@ -87,8 +87,10 @@ int totalWalls = 0;
 
 bool both, west, east;
 
-float npcX = 0, npcZ = mazeEntrance, npcY = .4, npcSpeed = 3, npcScale = .8;
+float npcX = 0, npcZ = mazeEntrance, npcY = .4, npcSpeed = 3, npcScale = .4;
 int maxMoveFrames = 120, currentFrames = 60;
+
+const float MAX_DISTANCE_TO_PLAYER = 1.5;
 
 typedef struct{
     float x;
@@ -119,7 +121,7 @@ MyVec2 coordinates[mazeLength*mazeLength];
     //initial camera info
     cameraX = -4; cameraY = 1.5; cameraZ = mazeEntrance; cameraHorizontalRot = 1.6111011;
     position.x = 0; position.y = 0; position.z = 0; cubeScale = 1;
-    initialFoV = 90.0; moveSpeed = .3; rotationSensitivity = 0.0005;
+    initialFoV = 75.0; moveSpeed = .3; rotationSensitivity = 0.0005;
     
     _cameraCollisionEnabled = true;
     _isMoving = false;
@@ -156,12 +158,12 @@ MyVec2 coordinates[mazeLength*mazeLength];
     glUniform1f(glGetUniformLocation(PROGRAM_HANDLE, "spotlightCutoff"), cosf(M_PI/12)); // cos(30deg / 2)
     glUniform4f(glGetUniformLocation(PROGRAM_HANDLE, "spotlightColor"), 0.5, 0.5, 0.5, 1.0);
     
-    textureWallID = [self setupTexture:@"greywall.jpg"];
+    textureWallID = [self setupTexture:@"diamond.jpg"];
     textureWallLeftID = [self setupTexture:@"mc_gold.png"];
     textureWallRightID = [self setupTexture:@"mc_redstone.png"];
-    textureWallBothID = [self setupTexture:@"realistic_stone.jpg"];
+    textureWallBothID = [self setupTexture:@"greywall.jpg"];
     
-    floorTextureID = [self setupTexture:@"maze_floor.jpg"];
+    floorTextureID = [self setupTexture:@"realistic_stone.jpg"];
     textureSkyID = [self setupTexture:@"sky.jpg"];
     npcTextureID = [self setupTexture:@"diamond.jpg"];
     
@@ -238,7 +240,7 @@ MyVec2 coordinates[mazeLength*mazeLength];
                 Model = GLKMatrix4Scale(Model, 1, 2, 1);    //scale of maze wall, 1m by 1m, 2m in height
                 
                 //walls on both sides: a wall exists to the east and west of current wall. +z direction is east
-                if(z-1 >= 0 && z+1 <= mazeLength){
+                if(z-1 >= 0 && z+1 < mazeLength){
                     both = (!mazeArray[x][z-1] && !mazeArray[x][z+1]);
                 }else{
                     both = false;
@@ -246,14 +248,23 @@ MyVec2 coordinates[mazeLength*mazeLength];
                 
                 //walls on left side only - wall exists to the -z direction: west of current wall
                 if(z-1 >= 0){
-                    west = (!mazeArray[x][z-1] && mazeArray[x][z+1]); //false - current true - false --> wall to the left, but path on the right
+                    if(z == mazeLength-1){
+                        west = (!mazeArray[x][z-1] && true); //false - current true - false --> wall to the left, but path on the right
+                    }else{
+                        west = (!mazeArray[x][z-1] && mazeArray[x][z+1]); //false - current true - false --> wall to the left, but path on the right
+                    }
                 }else{
                     west = false;
                 }
                 
                 //walls on right side only - wall exists to the +z direction: east of current wall
-                if(z+1 <= mazeLength){
-                    east = (mazeArray[x][z-1] && !mazeArray[x][z+1]); //true - current wall - false --> wall to the right, but path on the left
+                if(z+1 < mazeLength){
+                   
+                    if(z == 0){
+                         east = (true && !mazeArray[x][z+1]); //true - current wall - false --> wall to the right, but path on the left
+                    }else{
+                         east = (mazeArray[x][z-1] && !mazeArray[x][z+1]); //true - current wall - false --> wall to the right, but path on the left
+                    }
                 }else{
                     east = false;
                 }
@@ -271,7 +282,7 @@ MyVec2 coordinates[mazeLength*mazeLength];
                     [self drawVBO_Cube:textureWallID];
                 }
                 
-                
+                both = east = west = false;
             }
         }
 
@@ -282,7 +293,7 @@ MyVec2 coordinates[mazeLength*mazeLength];
 
 - (void)reset {
     cameraX = -4; cameraY = 1.5; cameraZ = mazeEntrance; cameraHorizontalRot = 1.6111011;
-    npcX = 0; npcZ = mazeEntrance; npcRotY = 1.7; npcSpeed = 3;
+    npcX = 0; npcZ = mazeEntrance; npcRotY = 1.7; npcSpeed = 3; npcScale = 0.8;
     _isMoving = false;
 }
 
@@ -344,37 +355,9 @@ MyVec2 coordinates[mazeLength*mazeLength];
 
 
 -(void) translateNPC:(float)xDelta secondDelta:(float)yDelta thirdDelta:(float)zDelta{
-    
     npcZ += zDelta * npcSpeed * 0.01;
     npcY += yDelta * npcSpeed * 0.01;
     npcX += xDelta * npcSpeed * 0.01;
-    /*
-    for(const MyVec2 &vec2 : coordinates){
-        
-        if(abs(npcX - vec2.x) < edgeLength && abs(npcZ - vec2.z ) < edgeLength){  //collided with something
-            
-            if(vec2.x == 0 && vec2.z == 0)  break;
-            
-            npcRotY = RandomFloat(0, 6.28055);
-            
-            if(abs(npcX - vec2.x) > abs(npcZ - vec2.z)){
-                
-                if(npcX > vec2.x) //hitting the wall from a greater x value
-                    npcX = vec2.x + collisionOffset;
-                if(npcX < vec2.x) //hitting wall from smaller x value
-                    npcX = vec2.x - collisionOffset;
-                
-            }else{
-                if(npcZ > vec2.z)  npcZ = vec2.z + collisionOffset;
-                
-                if(npcZ < vec2.z)  npcZ = vec2.z - collisionOffset;
-            }
-            
-            return;
-        }
-    }
-    */
-    
 }
 
 //Point p1 is the center of one square, and p2 is of the other
@@ -424,7 +407,7 @@ MyVec2 coordinates[mazeLength*mazeLength];
 }
 
 - (bool) isSameCell{
-    return (sqrt(pow(cameraX-npcX, 2) + pow(cameraZ-npcZ,2)  ) <= 1.5);
+    return (sqrt(pow(cameraX-npcX, 2) + pow(cameraZ-npcZ,2)  ) <= MAX_DISTANCE_TO_PLAYER); //if further than 1.5 distance, return false
 }
 
 float RandomFloat(float min, float max)
@@ -706,6 +689,7 @@ bool getSimilarVertexIndex(
     // Looks like we'll have to add it to the VBO.
     return false;
 }
+
 
 void indexVBO_slow(
                    std::vector<GLKVector3> & in_vertices,
